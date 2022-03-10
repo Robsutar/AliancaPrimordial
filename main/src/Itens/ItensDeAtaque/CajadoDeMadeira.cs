@@ -12,7 +12,7 @@ namespace AliançaPrimordial.main.src.Items
     {
         public CajadoDeMadeira() : base("Cajado de Madeira","Um cajado normal a primeira vista, porém Lianna sentiu algo a mais," +
             " quando tomou posse do objeto, o mesmo começou a pulsar como um coração em suas mãos, como se fosse vivo – " +
-            "&2Aumenta em &7+3&2 nas rolagens de ataque",3,6, Assets.cajado_de_madeira)
+            "&2Aumenta em &7+3&2 nas rolagens de ataque",3,8, Assets.cajado_de_madeira)
         {
             
         }

@@ -8,17 +8,16 @@ using System.Threading.Tasks;
 
 namespace AliançaPrimordial.main.src.Efeitos
 {
-    public class Encantado : Efeito
+    public class Inspiracao : Efeito
     {
-        public Encantado() : base("Encantado", "O indivíduo está &4encantado&2 terá &7-4 &2em testes de ataque", 2, Item.Flauta)
+        public Inspiracao() : base("Inspiração", "Conselho de Tanna-Toh: &1Inspiração - &2o indivíduo recebe &7+5 &2em testes de ataque"
+            , 100,Item.ConselhosDeTannaToh)
         {
-
         }
         public override void AntesDoTurno(EventoDeCombate e)
         {
+            e.Jogador.modificadorDeDado += 5;
             base.AntesDoTurno(e);
-            e.Jogador.modificadorDeDado -= 4;
-            Mensageiro.Print("Jogador encantado: " + e.Jogador.Nome) ;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using AliançaPrimordial.main.src.Efeitos;
 using AliançaPrimordial.main.src.Habilidades;
+using AliançaPrimordial.main.src.Janelas;
 using AliançaPrimordial.main.src.Personagens;
 using AliançaPrimordial.Motor;
 using AlmaPrimordial.Motor;
@@ -14,9 +15,13 @@ namespace AlmaPrimordial.Personagens
 {
     public abstract class Jogador
     {
-        public static readonly Lianna Lianna = new Lianna();
-        public static readonly Kry Kry = new Kry();
-        public static readonly Lobo Lobo = new Lobo();
+        public static Lianna Lianna;
+        public static Kry Kry;
+        public static Lobo Lobo;
+        public static Orc Orc;
+        public static BandidoA BandidoA;
+        public static BandidoB BandidoB;
+        public static BandidoC BandidoC;
 
 
         public static Protagonistas protagonista;
@@ -40,6 +45,11 @@ namespace AlmaPrimordial.Personagens
             }
         }
 
+        public int VidaMaxima
+        {
+            get => vidaMaxima;
+        }
+
         protected List<ItemDefensivo> itensDefensivos = new List<ItemDefensivo>();
 
         protected List<ItemAtivo> itensAtivos = new List<ItemAtivo>();
@@ -50,11 +60,11 @@ namespace AlmaPrimordial.Personagens
 
         protected List<ItemDeAtaque> itensDeAtaque = new List<ItemDeAtaque>();
 
-        protected readonly Ataque Ataque = Habilidade.Ataque;
+        public readonly Ataque Ataque = Habilidade.Ataque;
 
-        protected readonly UsarItem UsarItem = Habilidade.UsarItem;
+        public readonly UsarItem UsarItem = Habilidade.UsarItem;
 
-        protected readonly MudarDeArma MudarDeArma = Habilidade.MudarDeArma;
+        public readonly MudarDeArma MudarDeArma = Habilidade.MudarDeArma;
 
         protected ItemDeAtaque itemDeAtaque;
 
@@ -82,6 +92,14 @@ namespace AlmaPrimordial.Personagens
 
         public void AdicionarEfeito(Efeito e)
         {
+            foreach(Efeito f in efeitos)
+            {
+                if (f.Nome == e.Nome)
+                {
+                    efeitos.Remove(f);
+                    break;
+                }
+            }
             efeitos.Add(e);
             e.AoIniciar();
         }
@@ -129,6 +147,10 @@ namespace AlmaPrimordial.Personagens
                 Mensageiro.Print("Efeito pos turno " + f.Nome + " : " + f.Ativo);
             }
             modificadorDeDado = 0;
+            if (e.Adversario.Vida <= 0)
+            {
+                e.Vencedor = e.Jogador;
+            } 
             e.Terminar(e);
         }
         public virtual List<ItemDefensivo> ItensDefensivos()
@@ -142,10 +164,18 @@ namespace AlmaPrimordial.Personagens
         public virtual List<Item> TodosOsItens()
         {
             List<Item> l = new List<Item>();
-            l.Add(ItemDeAtaque());
-            l.Concat(ItensDefensivos());
-            l.Concat(ItensAtivos());
-            l.Concat(ItensDeAtaque());
+            foreach(Item i in ItensDefensivos())
+            {
+                l.Add(i);
+            }
+            foreach (Item i in ItensAtivos())
+            {
+                l.Add(i);
+            }
+            foreach (Item i in ItensDeAtaque())
+            {
+                l.Add(i);
+            }
             return l;
         }
         public virtual List<ItemDeAtaque> ItensDeAtaque() { return itensDeAtaque; }
@@ -157,6 +187,11 @@ namespace AlmaPrimordial.Personagens
         public virtual List<Efeito> Efeitos()
         {
             return efeitos;
+        }
+
+        public virtual void PoderEspecial(JanelaDeCombate janela, EventoDeCombate e)
+        {
+            e.Terminar(e);
         }
     }
 }

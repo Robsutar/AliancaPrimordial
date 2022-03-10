@@ -1,4 +1,5 @@
-﻿using AliançaPrimordial.main.src.Habilidades;
+﻿using AliançaPrimordial.main.src.Efeitos;
+using AliançaPrimordial.main.src.Habilidades;
 using AliançaPrimordial.main.src.Items;
 using AliançaPrimordial.Motor;
 using AlmaPrimordial.Motor;
@@ -18,33 +19,29 @@ namespace AliançaPrimordial.main.src.Personagens
         {
             itensDeAtaque.Add(new Murro("Cabeçada", 3, 5));
             itensDeAtaque.Add(new Murro("Cortes Profundos", 4, 8));
-            itensAtivos.Add(Item.FrascoDeAcido);
         }
+
         public override void AntesDoTurno(EventoDeCombate e)
         {
-            base.AntesDoTurno(e);
-            int valor = new Random().Next(5);
-            Mensageiro.Print(valor);
-            if (valor == 0)
+            foreach(Efeito f in Efeitos())
             {
-                base.AntesDoTurno(e);
-            }
-            else
-            {
-                string l = "Lobo: ";
-                switch (valor)
+                if (f is Encantado&&e.Adversario==Lianna)
                 {
-                    case 1: l += "Grrr"; break;
-                    case 2: l += "Au Aoooooo"; break;
-                    case 3: l += "Gr...Grrrrr"; break;
-                    case 4: l += "GRHAAAAAAAAh"; break;
+                    ((Lianna)e.Adversario).loboAliado = true;
+                    e.Vencedor = e.Adversario;
+                    e.Legendas.AdicionarEventoAoAcabar(new NoJogo.Evento(delegate()
+                    {
+                        e.Legendas.AdicionarEventoAoAcabar(new NoJogo.Evento(delegate ()
+                        {
+                            base.AntesDoTurno(e);
+                        }, 1000));
+                        e.Legendas.MudarLegenda(e.Adversario.Nome + " decide cuidar dele");
+                    }, 1000));
+                    e.Legendas.MudarLegenda(Nome + " está adormecendo tranquilamente... ");
+                    return;
                 }
-                e.Legendas.MudarLegenda(l);
-                e.Legendas.AdicionarEventoAoAcabar(new NoJogo.Evento(delegate ()
-                {
-                    base.AntesDoTurno(e);
-                }, 500));
             }
+            base.AntesDoTurno(e);
         }
     }
 }

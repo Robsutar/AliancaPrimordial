@@ -16,8 +16,12 @@ namespace AliançaPrimordial.main.src.Items
         }
         public override void NoUso(EventoDeCombate e)
         {
-            base.NoUso(e);
             e.Jogador.Vida += Dado.UmDTantos(5);
+            base.NoUso(e);
+        }
+        public override int FatorFavoravel(EventoDeCombate e)
+        {
+            return Dado.UmDTantos(15);
         }
     }
 }

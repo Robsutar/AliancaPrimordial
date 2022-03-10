@@ -27,11 +27,9 @@ namespace AliançaPrimordial.main.src.NoJogo
         }
         public void IniciarCombate(JanelaDeCombate jdc)
         {
-            if (combate !=null) {
-                Controls.Remove(combate);
-            }
+            Controls.Clear();
             combate = jdc;
-            combate.Abrir(this);
+            combate.Abrir();
         }
     }
 }

@@ -16,10 +16,25 @@ namespace AliançaPrimordial.main.src.Items
         {
         }
 
+        public override int FatorFavoravel(EventoDeCombate e)
+        {
+            return Dado.UmDTantos(15);
+        }
+
+        public override string PrimeiraParteLegenda(EventoDeCombate e)
+        {
+            return e.Jogador.Nome+" começa a tocar sua "+Nome;
+        }
+
+        public override string SegundaParteLegenda(EventoDeCombate e)
+        {
+            return ", " + e.Adversario.Nome + " está encantado...";
+        }
+
         public override void NoUso(EventoDeCombate e)
         {
-            base.NoUso(e);
             e.Adversario.AdicionarEfeito(new Encantado());
+            base.NoUso(e);
         }
     }
 }

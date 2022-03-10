@@ -8,17 +8,16 @@ using System.Threading.Tasks;
 
 namespace AliançaPrimordial.main.src.Efeitos
 {
-    public class Encantado : Efeito
+    public class Resiliencia : Efeito
     {
-        public Encantado() : base("Encantado", "O indivíduo está &4encantado&2 terá &7-4 &2em testes de ataque", 2, Item.Flauta)
+        public Resiliencia() : base("Resiliência","Conselho de Tanna-Toh: &4Resiliência - &2o indivíduo recebe &71d5 &2de cura por turno"
+            , 100, Item.ConselhosDeTannaToh)
         {
-
         }
         public override void AntesDoTurno(EventoDeCombate e)
         {
+            e.Jogador.Vida += Dado.UmDTantos(5);
             base.AntesDoTurno(e);
-            e.Jogador.modificadorDeDado -= 4;
-            Mensageiro.Print("Jogador encantado: " + e.Jogador.Nome) ;
         }
     }
 }

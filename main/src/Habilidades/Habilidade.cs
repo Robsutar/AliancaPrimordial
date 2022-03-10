@@ -16,9 +16,9 @@ namespace AliançaPrimordial.main.src.Habilidades
             this.Name = name;
         }
 
-        public static Ataque Ataque = new Ataque();
-        public static UsarItem UsarItem = new UsarItem();
-        public static MudarDeArma MudarDeArma = new MudarDeArma();
+        public static Ataque Ataque;
+        public static UsarItem UsarItem;
+        public static MudarDeArma MudarDeArma;
 
         protected abstract void NoUso(EventoDeCombate e);
 

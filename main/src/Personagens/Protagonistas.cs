@@ -1,5 +1,7 @@
-﻿using AliançaPrimordial.main.src.NoJogo;
+﻿using AliançaPrimordial.main.src.Janelas;
+using AliançaPrimordial.main.src.NoJogo;
 using AliançaPrimordial.Motor;
+using AlmaPrimordial.Motor;
 using AlmaPrimordial.Personagens;
 using System;
 using System.Collections.Generic;
@@ -18,7 +20,6 @@ namespace AliançaPrimordial.main.src.Personagens
 
         }
         public abstract void Introducao(Gerenciador handler);
-        protected abstract void PoderEspecial();
         public abstract string MostrarHistoria();
     }
 }

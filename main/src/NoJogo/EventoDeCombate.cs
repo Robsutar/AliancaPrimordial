@@ -12,6 +12,7 @@ namespace AlmaPrimordial.Motor
     public class EventoDeCombate
     {
         public readonly Jogador Jogador, Adversario;
+        public Jogador Vencedor;
         public readonly Legendas Legendas;
 
         private Evento eventoAoAcabar;
@@ -22,6 +23,10 @@ namespace AlmaPrimordial.Motor
         public void AdicionarEventoAoAcabar(Evento e)
         {
             eventoAoAcabar = e;
+        }
+        public bool TemVencedor()
+        {
+            return Vencedor != null;
         }
         public void Terminar(EventoDeCombate e)
         {
