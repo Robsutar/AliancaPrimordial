@@ -13,9 +13,9 @@ namespace AliançaPrimordial.main.src.Efeitos
         public readonly string Nome,Descricao;
         protected int turnosRestantes;
         public bool Ativo = false;
-        public readonly ItemAtivo origem;
+        public readonly Item origem;
 
-        public Efeito(string nome,string descicao,int quantidadeDeTurnos, ItemAtivo origem)
+        public Efeito(string nome,string descicao,int quantidadeDeTurnos, Item origem)
         {
             Nome = nome;Descricao=descicao;
             this.TurnosRestantes = quantidadeDeTurnos;

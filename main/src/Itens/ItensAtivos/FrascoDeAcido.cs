@@ -19,8 +19,12 @@ namespace AliançaPrimordial.main.src.Items
         }
         public override void NoUso(EventoDeCombate e)
         {
-            base.NoUso(e);
             e.Adversario.AdicionarEfeito(new Acido());
+            base.NoUso(e);
+        }
+        public override int FatorFavoravel(EventoDeCombate e)
+        {
+            return Dado.UmDTantos(15);
         }
     }
 }

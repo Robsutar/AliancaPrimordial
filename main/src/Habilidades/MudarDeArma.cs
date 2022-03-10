@@ -28,6 +28,22 @@ namespace AliançaPrimordial.main.src.Habilidades
             return new Random().Next(15);
         }
 
+        public virtual void Usar(EventoDeCombate e,ItemDeAtaque i)
+        {
+            NoUso(e,i);
+
+            e.Legendas.MudarLegenda(Legenda(e));
+            e.Legendas.AdicionarEventoAoAcabar(new NoJogo.Evento(delegate ()
+            {
+                FinalDoUso(e);
+            }, 1000));
+        }
+
+        private void NoUso(EventoDeCombate e,ItemDeAtaque i)
+        {
+            e.Jogador.MudarItemDeAtaque(i);
+        }
+
         //Esse método serve somente para bots
         protected override void NoUso(EventoDeCombate e)
         {
@@ -35,7 +51,7 @@ namespace AliançaPrimordial.main.src.Habilidades
             List<ItemDeAtaque> itens = new List<ItemDeAtaque>(e.Jogador.ItensDeAtaque());
             itens.Remove(e.Jogador.ItemDeAtaque());
             int rnd = new Random().Next(itens.Count);
-            e.Jogador.MudarItemDeAtaque(itens[rnd]);
+            NoUso(e, itens[rnd]);
         }
     }
 }

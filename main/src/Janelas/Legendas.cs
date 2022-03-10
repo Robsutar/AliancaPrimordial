@@ -40,6 +40,8 @@ namespace AliançaPrimordial.main.src.Janelas
 
         Timer tick;
 
+        public string Texto { get => texto; }
+
         public Legendas(Control c)
         {
             Size = new Size(600, 150);

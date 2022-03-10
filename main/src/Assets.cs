@@ -20,6 +20,10 @@ namespace AliançaPrimordial.Motor
         public static readonly Bitmap kry_normal = new Bitmap(Bitmap.FromFile(resourcesFolder + "kry_normal.png"),JogadorTamanho);
         public static readonly Bitmap lianna_normal = new Bitmap(Bitmap.FromFile(resourcesFolder + "lianna_normal.png"), JogadorTamanho);
         public static readonly Bitmap lobo_normal = new Bitmap(Bitmap.FromFile(resourcesFolder + "lobo_normal.png"), JogadorTamanho);
+        public static readonly Bitmap orc_normal = new Bitmap(Bitmap.FromFile(resourcesFolder + "orc_normal.png"), JogadorTamanho);
+        public static readonly Bitmap bandido_a_normal = new Bitmap(Bitmap.FromFile(resourcesFolder + "bandido_a_normal.png"), JogadorTamanho);
+        public static readonly Bitmap bandido_b_normal = new Bitmap(Bitmap.FromFile(resourcesFolder + "bandido_b_normal.png"), JogadorTamanho);
+        public static readonly Bitmap bandido_c_normal = new Bitmap(Bitmap.FromFile(resourcesFolder + "bandido_c_normal.png"), JogadorTamanho);
 
         public static readonly Bitmap broquel = new Bitmap(Bitmap.FromFile(itemsFolder + "broquel.png"),ItemTamanho);
         public static readonly Bitmap cajado_de_madeira = new Bitmap(Bitmap.FromFile(itemsFolder + "cajado_de_madeira.png"),ItemTamanho);
@@ -31,5 +35,14 @@ namespace AliançaPrimordial.Motor
         public static readonly Bitmap mangual = new Bitmap(Bitmap.FromFile(itemsFolder + "mangual.png"),ItemTamanho);
         public static readonly Bitmap murro = new Bitmap(Bitmap.FromFile(itemsFolder + "murro.png"), ItemTamanho);
         public static readonly Bitmap pocao_de_cura = new Bitmap(Bitmap.FromFile(itemsFolder + "pocao_de_cura.png"), ItemTamanho);
+        public static readonly Bitmap tacape = new Bitmap(Bitmap.FromFile(itemsFolder + "tacape.png"), ItemTamanho);
+        public static readonly Bitmap olhar_de_monstro = new Bitmap(Bitmap.FromFile(itemsFolder + "olhar_de_monstro.png"), ItemTamanho);
+        public static readonly Bitmap arvore_de_allihanna = new Bitmap(Bitmap.FromFile(itemsFolder + "arvore_de_allihanna.png"), ItemTamanho);
+        public static readonly Bitmap caixa_venenosa = new Bitmap(Bitmap.FromFile(itemsFolder + "caixa_venenosa.png"), ItemTamanho);
+        public static readonly Bitmap cimitarra = new Bitmap(Bitmap.FromFile(itemsFolder + "cimitarra.png"), ItemTamanho);
+        public static readonly Bitmap adaga = new Bitmap(Bitmap.FromFile(itemsFolder + "adaga.png"), ItemTamanho);
+        public static readonly Bitmap arco = new Bitmap(Bitmap.FromFile(itemsFolder + "arco.png"), ItemTamanho);
+        public static readonly Bitmap tridente = new Bitmap(Bitmap.FromFile(itemsFolder + "tridente.png"), ItemTamanho);
+        public static readonly Bitmap conselhos_de_tanna_toh = new Bitmap(Bitmap.FromFile(itemsFolder + "conselhos_de_tanna_toh.png"), ItemTamanho);
     }
 }

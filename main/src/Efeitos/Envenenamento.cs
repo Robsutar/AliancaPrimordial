@@ -8,18 +8,19 @@ using System.Threading.Tasks;
 
 namespace AliançaPrimordial.main.src.Efeitos
 {
-    public class Acido : Efeito
+    public class Envenenamento : Efeito
     {
-        public Acido() : base("Acido","A carne do indivíduo está queimando,&2 o alvo sofre &41d6 &2por turno.",3,Item.FrascoDeAcido)
+        public Envenenamento() : base("Envenenamento", "A pele do indivíduo está esverdeada, sofrendo de dor interna, " +
+            "&2 o alvo sofre &4quantidade de turnos restantes &2de dano por turno.", 4, Item.FrascoDeAcido)
         {
 
         }
         public override void DepoisDoTurno(EventoDeCombate e)
         {
             base.DepoisDoTurno(e);
-            int dano = Dado.UmDTantos(6);
+            int dano = turnosRestantes;
             e.Jogador.Vida -= dano;
-            Mensageiro.Print(dano + " alvo machucado pelo ácido " + e.Jogador.Nome);
+            Mensageiro.Print(dano + " alvo machucado pelo veneno " + e.Jogador.Nome);
         }
     }
 }

@@ -1,5 +1,8 @@
 ﻿using AliançaPrimordial.Items;
 using AliançaPrimordial.main.src.Items;
+using AliançaPrimordial.main.src.Itens.ItensAtivos;
+using AliançaPrimordial.main.src.Itens.ItensDeAtaque;
+using AliançaPrimordial.main.src.Itens.ItensDefensivos;
 using AlmaPrimordial.Motor;
 using System;
 using System.Collections.Generic;
@@ -7,21 +10,31 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static AliançaPrimordial.main.src.Itens.ItensDeAtaque.ItensDeAtaqueSimples;
 
 namespace AliançaPrimordial.Motor
 {
     public abstract class Item
     {
-        public static readonly Broquel Broquel = new Broquel();
-        public static readonly CajadoDeMadeira CajadoDeMadeira = new CajadoDeMadeira();
-        public static readonly CapuzDeLadino CapuzDeLadino = new CapuzDeLadino();
-        public static readonly CotaDeMalha CotaDeMalha = new CotaDeMalha();
-        public static readonly ErvaDeCura ErvaDeCura = new ErvaDeCura();
-        public static readonly Flauta Flauta = new Flauta();
-        public static readonly FrascoDeAcido FrascoDeAcido = new FrascoDeAcido();
-        public static readonly Mangual Mangual = new Mangual();
-        public static readonly Murro Murro = new Murro("Murro",-2,3);
-        public static readonly PocaoDeCura PocaoDeCura = new PocaoDeCura();
+        public static Broquel Broquel;
+        public static CajadoDeMadeira CajadoDeMadeira;
+        public static CapuzDeLadino CapuzDeLadino;
+        public static CotaDeMalha CotaDeMalha;
+        public static ErvaDeCura ErvaDeCura;
+        public static Flauta Flauta;
+        public static FrascoDeAcido FrascoDeAcido;
+        public static Mangual Mangual;
+        public static Murro Murro;
+        public static Tacape Tacape;
+        public static PocaoDeCura PocaoDeCura;
+        public static OlharDeMonstro OlharDeMonstro;
+        public static ArvoreDeAllihanna ArvoreDeAllihanna;
+        public static CaixaVenenosa CaixaVenenosa;
+        public static Arco Arco;
+        public static Cimitarra Cimitarra;
+        public static Adaga Adaga;
+        public static Tridente Tridente;
+        public static ConselhosDeTannaToh ConselhosDeTannaToh;
 
         protected bool consumivel = false;
         public readonly string Nome,Descricao;
@@ -31,6 +44,10 @@ namespace AliançaPrimordial.Motor
         public Item(string nome, string descricao, Bitmap image)
         {
             Nome = nome;Descricao = descricao;this.image = image;
+        }
+        public override string ToString()
+        {
+            return Nome;
         }
     }
     public abstract class ItemAtivo : Item
@@ -47,6 +64,14 @@ namespace AliançaPrimordial.Motor
         public virtual void NoUso(EventoDeCombate e)
         {
 
+        }
+        public virtual string PrimeiraParteLegenda(EventoDeCombate e)
+        {
+            return e.Jogador.Nome + " usou o item: ";
+        }
+        public virtual string SegundaParteLegenda(EventoDeCombate e)
+        {
+            return Nome;
         }
         public bool Consumivel() { return consumivel; }
     }

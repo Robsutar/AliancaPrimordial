@@ -2,6 +2,7 @@
 using AliançaPrimordial.main.src.Habilidades;
 using AliançaPrimordial.main.src.Invocadores;
 using AliançaPrimordial.main.src.NoJogo;
+using AliançaPrimordial.main.src.Personagens;
 using AliançaPrimordial.Motor;
 using AlmaPrimordial.Motor;
 using AlmaPrimordial.Personagens;
@@ -10,6 +11,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,7 +24,7 @@ namespace AliançaPrimordial.main.src.Janelas
         internal Humano p1;
         internal Bot p2;
 
-        internal bool turno = true;
+        public bool turno = true;
 
         public readonly Legendas legendas;
 
@@ -30,11 +32,15 @@ namespace AliançaPrimordial.main.src.Janelas
 
         PainelDeStatus statusP1, statusP2;
 
-        Panel p1Panel,p2Panel;
+        PictureBox p1Panel,p2Panel;
 
-        public JanelaDeCombate(Humano p1, Bot p2)
+        private Evento aoAcabar;
+        public EventoDeCombate aoAcabarCombate;
+        public Gerenciador gerenciador;
+
+        public JanelaDeCombate(Humano p1, Bot p2,Gerenciador handler)
         {
-
+            this.gerenciador = handler;
             this.p1 = p1;this.p2 = p2;
             InitializeComponent();
             Dock = DockStyle.Fill;
@@ -52,7 +58,7 @@ namespace AliançaPrimordial.main.src.Janelas
             statusP1 = new PainelDeStatus(this,p1.Personagem, true);
             statusP2 = new PainelDeStatus(this,p2.Personagem, false);
 
-            p2Panel = new Panel();
+            p2Panel = new PictureBox();
             p2Panel.BackgroundImage =Visual.RedimensionarImagem(p2.Personagem.Image,new Size(300,300));
             p2Panel.Dock = DockStyle.None;
             p2Panel.Size = p2Panel.BackgroundImage.Size;
@@ -61,7 +67,7 @@ namespace AliançaPrimordial.main.src.Janelas
                this.ClientSize.Width / 2 - p2Panel.Size.Width / 2,
                this.ClientSize.Height / 2 -p2Panel.Size.Height);
 
-            p1Panel = new Panel();
+            p1Panel = new PictureBox();
             p1Panel.BackgroundImage = Visual.RedimensionarImagem(p1.Personagem.Image, new Size(300, 300));
             p1Panel.Dock = DockStyle.None;
             p1Panel.Size = p1Panel.BackgroundImage.Size;
@@ -70,15 +76,19 @@ namespace AliançaPrimordial.main.src.Janelas
               Padding.All,
               this.Height-p1Panel.Height-Padding.All);
 
+            p1.Personagem.Efeitos().Clear();
+            p2.Personagem.Efeitos().Clear();
+
             Controls.Add(habilidades);
-            Controls.Add(statusP1);
             Controls.Add(p1Panel);
             Controls.Add(p2Panel);
+            Controls.Add(statusP1);
             Controls.Add(statusP2);
 
-            Turno();
+            Invalidate();
         }
-        public void Abrir(Gerenciador handler){handler.Controls.Add(this); }
+        public void Abrir() { gerenciador.Controls.Add(this); Turno(); }
+        public void Fechar() { gerenciador.Controls.Remove(this); }
 
         protected override void OnInvalidated(InvalidateEventArgs e)
         {
@@ -89,14 +99,16 @@ namespace AliançaPrimordial.main.src.Janelas
             }
         }
 
+        public void AdicionarEventoAoAcabar(Evento e) { this.aoAcabar = e; }
+
         private void Turno()
         {
             Jogador jogador, adversario;
             if (turno)
             {
-
+                p1Panel.BackgroundImage = Visual.RedimensionarImagem(p1.Personagem.Image, new Size(300, 300));
+                p2Panel.BackgroundImage = Visual.ParaEscalaCinza(Visual.RedimensionarImagem(p2.Personagem.Image, new Size(300, 300)));
                 turno = false;
-                habilidades.Enabled = true;
                 legendas.MudarLegenda("Agora é o seu turno");
                 legendas.AdicionarEventoAoAcabar(new Evento(delegate ()
                 {
@@ -104,25 +116,30 @@ namespace AliançaPrimordial.main.src.Janelas
                     adversario = p2.Personagem;
 
                     EventoDeCombate e = new EventoDeCombate(jogador, adversario,legendas);
-
-                    habilidades.AdicionarEventoNaEcolha(new Action<Habilidade>(delegate (Habilidade h)
+                    e.AdicionarEventoAoAcabar(new Evento(delegate ()
                     {
-                        e.AdicionarEventoAoAcabar(new Evento(delegate ()
+                        if (!e.TemVencedor())
                         {
-                            e.AdicionarEventoAoAcabar(new Evento(delegate ()
+                            habilidades.Enabled = true;
+                            habilidades.AdicionarEventoNaEcolha(new Evento(delegate ()
                             {
                                 FinalDoTurno(e);
-                            }, 500));
-                            h.Usar(e);
-                            habilidades.Enabled = false;
-                        },500));
-                        e.Jogador.AntesDoTurno(e);
-                    }));
+                            }), e);
+                        } else
+                        {
+                            FinalDoTurno(e);
+                            return;
+                        }
+                        Invalidate();
+                    },500));
+                    e.Jogador.AntesDoTurno(e);
                 },100));
             } else
             {
+                p1Panel.BackgroundImage = Visual.ParaEscalaCinza(Visual.RedimensionarImagem(p1.Personagem.Image, new Size(300, 300)));
+                p2Panel.BackgroundImage = Visual.RedimensionarImagem(p2.Personagem.Image, new Size(300, 300));
                 turno = true;
-                legendas.MudarLegenda("Agora é turno de Lobo");
+                legendas.MudarLegenda("Agora é turno de " + p2.Personagem.Nome) ;
                 legendas.AdicionarEventoAoAcabar(new Evento(delegate ()
                 {
                     turno = true;
@@ -137,7 +154,15 @@ namespace AliançaPrimordial.main.src.Janelas
                         {
                             FinalDoTurno(e);
                         }, 500));
-                        p2.TurnoAutomatico(e);
+                        if (!e.TemVencedor())
+                        {
+                            p2.TurnoAutomatico(e);
+                        } else
+                        {
+                            FinalDoTurno(e);
+                            return;
+                        }
+                        Invalidate();
                     },500));
                     e.Jogador.AntesDoTurno(e);
                 }, 100));
@@ -148,10 +173,49 @@ namespace AliançaPrimordial.main.src.Janelas
         {
             e.AdicionarEventoAoAcabar(new Evento(delegate ()
             {
-                Turno();
-                Invalidate();
+                TurnoAoAcabar(e);
             }));
             e.Jogador.DepoisDoTurno(e);
+        }
+
+        private void TurnoAoAcabar(EventoDeCombate e)
+        {
+            if (e.TemVencedor())
+            {
+                if (e.Vencedor == e.Jogador) {
+                    e = new EventoDeCombate(e.Vencedor,e.Adversario, e.Legendas);
+                    e.Vencedor = e.Jogador;
+                } else
+                {
+                    e = new EventoDeCombate(e.Vencedor,e.Jogador, e.Legendas);
+                    e.Vencedor = e.Jogador;
+                }
+                Mensageiro.Print("Combate vencido por: " + e.Vencedor.Nome + " combate: " + e.Jogador.Nome + " <> " + e.Adversario.Nome);
+                if (e.Vencedor == p1.Personagem)
+                {
+                    p1Panel.BackgroundImage = Visual.RedimensionarImagem(p1.Personagem.Image, new Size(300, 300));
+                    p2Panel.BackgroundImage = Visual.ParaEscalaCinza(Visual.RedimensionarImagem(p2.Personagem.Image, new Size(300, 300)));
+                } else
+                {
+                    p1Panel.BackgroundImage = Visual.ParaEscalaCinza(Visual.RedimensionarImagem(p1.Personagem.Image, new Size(300, 300)));
+                    p2Panel.BackgroundImage = Visual.RedimensionarImagem(p2.Personagem.Image, new Size(300, 300));
+                }
+                Mensageiro.Print("Janela de combate com vencedor");
+                aoAcabarCombate = e;
+                if (aoAcabar != null)
+                {
+                    aoAcabar.Invocar();
+                }
+                else
+                {
+                    Mensageiro.Print("JANELA DE COMBATE FOI TERMINADA SEM EVENTO AO ACABAR!!");
+                }
+            }
+            else
+            {
+                Turno();
+            }
+            Invalidate();
         }
 
         internal class PainelDeStatus : Panel
@@ -162,7 +226,7 @@ namespace AliançaPrimordial.main.src.Janelas
 
             RichTextBox vida = new RichTextBox();
 
-            Panel efeitos = new Panel();
+            FlowLayoutPanel efeitos = new FlowLayoutPanel();
 
             internal readonly bool Turno;
 
@@ -171,21 +235,23 @@ namespace AliançaPrimordial.main.src.Janelas
                 this.handler = handler;
                 this.jogador = jogador;
                 this.Turno = turno;
-                BackColor = Visual.backgroundColor1;
+                DoubleBuffered = true;
 
-                Size = new Size(100, 200);
+                Size = new Size(100, 600);
                 Dock = DockStyle.None;
                 Padding = new Padding(20);
+                BackColor = Visual.backgroundColor1;
 
                 vida.Dock = DockStyle.Top;
-                vida.Size = new Size(Width - Padding.All, (Height - Padding.All*2)/4);
+                vida.Size = new Size(Width - Padding.All, 40);
                 vida.ReadOnly = true;
                 vida.BorderStyle = BorderStyle.None;
                 vida.Enabled = false;
                 vida.Multiline = true;
 
-                efeitos.Dock = DockStyle.Bottom;
-                efeitos.Size = new Size(200, ((Height - Padding.All * 2) / 4)*3);
+                efeitos.Dock = DockStyle.Fill;
+                efeitos.Size = new Size(200, 0);
+                efeitos.BackColor = Visual.backgroundColor1;
 
                 Controls.Add(efeitos);
                 Controls.Add(vida);
@@ -210,35 +276,99 @@ namespace AliançaPrimordial.main.src.Janelas
                 Visual.FormatRichTextBox(vida);
 
                 efeitos.Controls.Clear();
+                Size size = efeitos.Size;
+                size.Height = 0;
                 foreach(Efeito f in jogador.Efeitos())
                 {
                     BotaoDeEfeitos b = new BotaoDeEfeitos(this, f);
+                    b.FlatAppearance.BorderColor = Color.Orange;
+                    size.Height += b.Height+efeitos.Padding.Bottom;
                     efeitos.Controls.Add(b);
                 }
+                efeitos.Controls.Add(new Label());
+                foreach (Item i in jogador.ItensDefensivos())
+                {
+                    BotaoDeItem b = new BotaoDeItem(this, i);
+                    size.Height += b.Height + efeitos.Padding.Bottom;
+                    efeitos.Controls.Add(b);
+                }
+                efeitos.Controls.Add(new Label());
+                foreach (Item i in jogador.ItensAtivos())
+                {
+                    BotaoDeItem b = new BotaoDeItem(this, i);
+                    b.FlatAppearance.BorderColor = Color.Green;
+                    size.Height += b.Height + efeitos.Padding.Bottom;
+                    efeitos.Controls.Add(b);
+                }
+                efeitos.Controls.Add(new Label());
+                BotaoDeItem bAtaque = new BotaoDeItem(this, jogador.ItemDeAtaque());
+                bAtaque.FlatAppearance.BorderColor = Color.Red;
+                size.Height += bAtaque.Height + efeitos.Padding.Bottom;
+                efeitos.Controls.Add(bAtaque);
+
+                size.Height += 50;
+                efeitos.Size = size;
             }
             protected override void OnInvalidated(InvalidateEventArgs e)
             {
                 UpdateConfigs();
                 base.OnInvalidated(e);
             }
-            internal class BotaoDeEfeitos : Button
+            internal class BotaoDeEfeitos : BotaoPequeno
+            {
+                internal readonly Efeito efeito;
+                internal BotaoDeEfeitos(PainelDeStatus handler, Efeito efeito):base(handler,efeito.origem.Image)
+                {
+                    this.efeito = efeito;
+                }
+
+                protected override string Descricao()
+                {
+                    string s = "&0  " + efeito.Nome + "\n" + efeito.Descricao+ "\n" + "&9Duração restante: &7";
+                    if (efeito.TurnosRestantes < 100)
+                    {
+                        s += efeito.TurnosRestantes;
+                    } else {
+                        s += "Até o fim do combate";
+                    }
+                    return s;
+                }
+            }
+
+            internal class BotaoDeItem : BotaoPequeno
+            {
+                internal readonly Item item;
+                internal BotaoDeItem(PainelDeStatus handler, Item item) : base(handler, item.Image)
+                {
+                    this.item = item;
+                }
+
+                protected override string Descricao()
+                {
+                    return "&0  " + item.Nome + "\n" + item.Descricao ;
+                }
+            }
+
+            internal abstract class BotaoPequeno : Button
             {
                 internal readonly PainelDeStatus handler;
                 internal Panel popupPanel;
-                internal readonly Efeito efeito;
-                internal BotaoDeEfeitos(PainelDeStatus handler, Efeito efeito)
+                internal readonly Bitmap image;
+                internal BotaoPequeno(PainelDeStatus handler, Bitmap image)
                 {
-                    this.handler = handler;this.efeito = efeito;
-                    BackgroundImage = Visual.RedimensionarImagem(efeito.origem.Image, new Size(25,25));
+                    this.handler = handler; this.image = image;
+                    BackgroundImage = Visual.RedimensionarImagem(image, new Size(25, 25));
                     Size = BackgroundImage.Size;
+                    Width += 4;Height += 4;
                     SetStyle(ControlStyles.Selectable, false);
                     FlatStyle = FlatStyle.Flat;
-                    FlatAppearance.BorderColor = Visual.menuColor4;
+                    FlatAppearance.BorderColor = Color.Blue;
                     FlatAppearance.BorderSize = 2;
-                    BackColor = Color.Red;
                     MouseDown += BotaoDeEfeitos_MouseDown;
                     MouseUp += BotaoDeEfeitos_MouseUp;
                 }
+
+                protected abstract string Descricao();
 
                 private void BotaoDeEfeitos_MouseUp(object sender, MouseEventArgs e)
                 {
@@ -272,7 +402,7 @@ namespace AliançaPrimordial.main.src.Janelas
                         }
                         popupPanel.Location = mouse;
 
-                        rtb.Text = "&0  "+efeito.Nome+"\n"+efeito.Descricao+"\n"+"&9Duração restante: &7"+efeito.TurnosRestantes;
+                        rtb.Text = Descricao();
 
                         Visual.FormatRichTextBox(rtb);
 
@@ -288,65 +418,149 @@ namespace AliançaPrimordial.main.src.Janelas
         {
             private readonly JanelaDeCombate handler;
 
-            Action<Habilidade> eventoNaEscolha;
+            Evento naEscolha;
+            EventoDeCombate combate;
             internal PainelDeHabilidades(JanelaDeCombate handler)
             {
                 this.handler = handler;
-                BackColor = Visual.backgroundColor1 ;
+                BackColor = Visual.backgroundColor1;
                 Dock = DockStyle.Bottom;
                 Size = new Size(100, 100);
+                DoubleBuffered = true;
 
                 Padding = new Padding(20);
 
-                foreach (Habilidade h in handler.p1.Personagem.Habilidades())
+                List<BotaoExemplar> buttons = new List<BotaoExemplar>();
+
+                BotaoExemplar atk = new BotaoExemplar("Atacar");
+                buttons.Add(atk);
+
+                atk.Click += delegate (object sender, EventArgs e)
                 {
-                    BotaoDeHablidade b = new BotaoDeHablidade(h,this);
+                    if (combate != null) {
+                        combate.Jogador.Ataque.Usar(combate);
+                        combate.AdicionarEventoAoAcabar(new Evento(delegate ()
+                       {
+                           NaEscolha();
+                       }));
+                        this.Enabled = false;
+                    }
+                };
+
+                BotaoExemplar poderEspecial = new BotaoExemplar("Poder Especial");
+                buttons.Add(poderEspecial);
+
+                poderEspecial.Click += delegate (object sender, EventArgs e)
+                {
+                    if (combate != null)
+                    {
+                        poderEspecial.Enabled = false;
+                        combate.Jogador.PoderEspecial(handler, combate);
+                        combate.AdicionarEventoAoAcabar(new Evento(delegate ()
+                        {
+                            NaEscolha();
+                        }));
+                        this.Enabled = false;
+                    }
+                };
+
+                BotaoExemplar usarItem = new BotaoExemplar("Usar Item");
+                buttons.Add(usarItem);
+
+                usarItem.Click += delegate (object sender, EventArgs e)
+                {
+                    if (combate != null)
+                    {
+                        List<ItemAtivo> items = new List<ItemAtivo>(combate.Jogador.ItensAtivos());
+                        if (items.Count > 0)
+                        {
+                            PainelDeItensAtivos pi = new PainelDeItensAtivos(items);
+
+                            Point mouse = handler.PointToClient(Cursor.Position);
+                            mouse.Y -= pi.Height;
+                            pi.Location = mouse;
+                            pi.AdicionarEventoAoClicar(delegate (ItemAtivo i)
+                            {
+                                handler.Controls.Remove(pi);
+                                combate.AdicionarEventoAoAcabar(new Evento(delegate ()
+                                {
+                                    NaEscolha();
+                                }));
+                                combate.Jogador.UsarItem.Usar(combate, i);
+                            });
+                            handler.Controls.Add(pi);
+                            pi.BringToFront();
+                            this.Enabled = false;
+                        }
+                    }
+                };
+
+                BotaoExemplar mudarArma = new BotaoExemplar("Mudar de Arma");
+                buttons.Add(mudarArma);
+
+                mudarArma.Click += delegate (object sender, EventArgs e)
+                {
+                    if (combate != null)
+                    {
+                        List<ItemDeAtaque> items = new List<ItemDeAtaque>(combate.Jogador.ItensDeAtaque());
+                        PainelDeItensDeAtaque pi = new PainelDeItensDeAtaque(items);
+
+                        Point mouse = handler.PointToClient(Cursor.Position);
+                        mouse.Y -= pi.Height;
+                        pi.Location = mouse;
+                        pi.AdicionarEventoAoClicar(delegate (ItemDeAtaque i)
+                        {
+                            handler.Controls.Remove(pi);
+                            if (i != combate.Jogador.ItemDeAtaque())
+                            {
+                                combate.AdicionarEventoAoAcabar(new Evento(delegate ()
+                                {
+                                    NaEscolha();
+                                }));
+                                combate.Jogador.MudarDeArma.Usar(combate, i);
+                            } else { this.Enabled = true; }
+                        });
+                        handler.Controls.Add(pi);
+                        pi.BringToFront();
+                        this.Enabled = false;
+                    }
+                };
+
+                Paint += delegate (object sender, PaintEventArgs e)
+                {
+                    Graphics gfx = e.Graphics;
+                    Brush p = new SolidBrush(Visual.menuColor2);
+                    gfx.FillRectangle(p, 0, 0, Width, 5);
+                    gfx.FillRectangle(p, 0, Height - 5, Width, Height);
+                };
+
+                foreach(Button b in buttons){
+                    b.Dock = DockStyle.Left;
+                    b.Size = Size;
                     Controls.Add(b);
                 }
-                Paint += PainelDeHabilidades_Paint;
             }
 
-            private void PainelDeHabilidades_Paint(object sender, PaintEventArgs e)
+            internal void NaEscolha()
             {
-                Graphics gfx = e.Graphics;
-                Brush p = new SolidBrush(Visual.menuColor2);
-                gfx.FillRectangle(p, 0, 0, Width, 5);
-                gfx.FillRectangle(p, 0, Height - 5, Width, Height);
-            }
-
-            internal void NoCliqueDoBotao(BotaoDeHablidade b)
-            {
-                if (eventoNaEscolha != null)
+                if (naEscolha != null)
                 {
-                    eventoNaEscolha(b.habilidade);
+                    naEscolha.Invocar();
+                } else
+                {
+                    Mensageiro.Print("Habilidade escolhida sem evento!");
                 }
             }
-
-            internal void AdicionarEventoNaEcolha(Action<Habilidade> a)
+            internal void AdicionarEventoNaEcolha(Evento e,EventoDeCombate c)
             {
-                eventoNaEscolha = a;
+                this.naEscolha = e;this.combate = c;
             }
-
-            internal class BotaoDeHablidade : Button
+            internal class BotaoExemplar : Button
             {
-                internal readonly Habilidade habilidade;
-                internal PainelDeHabilidades handler;
-                internal BotaoDeHablidade(Habilidade h,PainelDeHabilidades handler)
+                internal BotaoExemplar(string text)
                 {
-                    this.handler=handler;
-                    habilidade = h;
-                    Text = h.Name;
-                    Dock = DockStyle.Left;
-                    Size = new Size(Width * 2, Height);
+                    this.Text = text;
                     SetStyle(ControlStyles.Selectable, false);
-                    TabStop = false;
-                    Click += BotaoDeHablidade_Click;
-
-                }
-
-                private void BotaoDeHablidade_Click(object sender, EventArgs e)
-                {
-                    handler.NoCliqueDoBotao(this);
                 }
             }
         }
